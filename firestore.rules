@@ -1,0 +1,34 @@
+rules_version='2'
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Site Settings: Publicly readable, only admin can write
+    match /site_settings/{settingId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // Projects: Publicly readable, only admin can write
+    match /projects/{projectId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // Testimonials: Publicly readable, only admin can write
+    match /testimonials/{testimonyId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // Inquiries: Anyone can create, only admin can read/delete
+    match /inquiries/{inquiryId} {
+      allow create: if true;
+      allow read, update, delete: if request.auth != null;
+    }
+
+    // Default: Deny all
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}

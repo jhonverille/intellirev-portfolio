@@ -1,0 +1,172 @@
+.container {
+    padding: 10rem 2rem;
+    max-width: 1400px;
+    /* Increased to allow sidebar space */
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+.formCard {
+    /* GlassCard handles the base glass styles, we just add sizing/padding */
+    padding: 4rem !important;
+    width: 100%;
+}
+
+.cardContent {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 6rem;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+}
+
+.inputGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.inputGroup label {
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: #ffffff;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.inputGroup input,
+.inputGroup textarea {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 0.75rem 0;
+    font-size: 1.1rem;
+    color: white;
+    width: 100%;
+    border-radius: 0;
+    transition: all 0.3s ease;
+}
+
+.inputGroup input:focus,
+.inputGroup textarea:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+}
+
+.inputGroup textarea {
+    resize: none;
+}
+
+.btn {
+    align-self: flex-start;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    padding: 1rem 3.5rem;
+    border-radius: 100px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    margin-top: 1rem;
+}
+
+.btn:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--accent-blue);
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: var(--glow-primary);
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Sidebar Styling */
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+}
+
+.sidebarItem h4 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #ffffff;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+}
+
+.sidebarItem p {
+    font-size: 1.1rem;
+}
+
+.socials {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: auto;
+    padding-top: 2rem;
+}
+
+.socialLink {
+    color: var(--text-color);
+    transition: all 0.3s ease;
+}
+
+.socialLink:hover {
+    color: var(--accent-blue);
+    transform: translateY(-3px);
+}
+
+.success {
+    text-align: center;
+    padding: 4rem 0;
+}
+
+.success h3 {
+    font-size: 2.5rem;
+    color: #ffffff;
+    margin: 1.5rem 0 1rem;
+}
+
+.errorMessage {
+    color: #ff4d4d;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 992px) {
+    .cardContent {
+        grid-template-columns: 1fr;
+        gap: 4rem;
+    }
+
+    .formCard {
+        padding: 2.5rem !important;
+    }
+
+    .sidebar {
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        padding-top: 3rem;
+    }
+}
+
+@media (max-width: 640px) {
+    .inputGroup label {
+        font-size: 1rem;
+    }
+}

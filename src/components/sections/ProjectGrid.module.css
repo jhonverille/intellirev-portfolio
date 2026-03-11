@@ -1,0 +1,321 @@
+.container {
+    padding: 10rem 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2.5rem;
+    width: 100%;
+}
+
+.cardWrapper {
+    height: 100%;
+}
+
+.cardWrapper {
+    cursor: pointer;
+}
+
+.projectCard {
+    padding: 0 !important;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    border-radius: 24px !important;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.cardWrapper:hover .projectCard {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 0 0 40px rgba(0, 132, 255, 0.1);
+}
+
+/* ─── Image area ─── */
+.imageArea {
+    height: 240px;
+    width: 100%;
+    background: linear-gradient(135deg, rgba(0, 132, 255, 0.1), rgba(0, 242, 255, 0.05));
+    position: relative;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    overflow: hidden;
+    border-radius: 24px 24px 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.projectImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.5s ease;
+}
+
+.cardWrapper:hover .projectImage {
+    transform: scale(1.05);
+}
+
+.placeholderOverlay {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(0, 242, 255, 0.06) 0%, transparent 70%);
+}
+
+/* ─── Hover overlay ─── */
+.hoverOverlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    backdrop-filter: blur(4px);
+}
+
+.cardWrapper:hover .hoverOverlay {
+    opacity: 1;
+}
+
+.viewLabel {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 0.6rem 1.2rem;
+    border-radius: 100px;
+    backdrop-filter: blur(8px);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.textContent {
+    padding: 1.5rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.projectTitle {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--text-color);
+    margin: 0;
+}
+
+.projectCategory {
+    color: var(--accent-cyan);
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+}
+
+.projectDesc {
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    line-height: 1.6;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-top: 0.25rem;
+}
+
+/* ─── Tags ─── */
+.tagRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.5rem;
+}
+
+.tagPill {
+    background: rgba(0, 242, 255, 0.05);
+    border: 1px solid rgba(0, 242, 255, 0.15);
+    color: var(--accent-cyan);
+    padding: 0.15rem 0.55rem;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-family: var(--font-mono);
+}
+
+/* ─── Quick links ─── */
+.quickLinks {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: auto;
+    padding-top: 0.75rem;
+}
+
+.quickLink {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: var(--text-dim);
+    font-size: 0.8rem;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.quickLink:hover {
+    color: var(--accent-cyan);
+}
+
+/* ─── Loading / Empty ─── */
+.loadingState,
+.emptyState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 5rem 2rem;
+    gap: 1rem;
+    color: var(--text-dim);
+    width: 100%;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.spinner {
+    color: var(--accent-cyan);
+    animation: spin 1s linear infinite;
+}
+
+.footer {
+    margin-top: 6rem;
+    display: flex;
+    justify-content: center;
+}
+
+.exploreBtn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    padding: 1rem 3rem;
+    border-radius: 100px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.exploreBtn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--accent-blue);
+    color: #ffffff;
+    box-shadow: var(--glow-primary);
+    transform: translateY(-2px);
+}
+
+/* Responsive adjustments */
+@media (max-width: 1100px) {
+    .grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* ─── Skeleton shimmer ─── */
+@keyframes shimmer {
+    0% {
+        background-position: -600px 0;
+    }
+
+    100% {
+        background-position: 600px 0;
+    }
+}
+
+.skeletonImage {
+    width: 100%;
+    height: 240px;
+    border-radius: 24px 24px 0 0;
+    background: linear-gradient(90deg,
+            rgba(255, 255, 255, 0.04) 0%,
+            rgba(255, 255, 255, 0.08) 50%,
+            rgba(255, 255, 255, 0.04) 100%);
+    background-size: 600px 100%;
+    animation: shimmer 1.6s infinite linear;
+}
+
+.skeletonTitle {
+    height: 18px;
+    width: 60%;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.07);
+    animation: shimmer 1.6s infinite linear;
+    background-size: 600px 100%;
+}
+
+.skeletonCategory {
+    height: 12px;
+    width: 40%;
+    border-radius: 6px;
+    background: rgba(0, 242, 255, 0.08);
+    animation: shimmer 1.6s infinite linear 0.2s;
+    background-size: 600px 100%;
+}
+
+.skeletonLine {
+    height: 10px;
+    width: 90%;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.04);
+    animation: shimmer 1.6s infinite linear 0.4s;
+    background-size: 600px 100%;
+}
+
+/* ─── Coming Soon badge ─── */
+.comingSoonLabel {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    position: absolute;
+    pointer-events: none;
+}
+
+@media (max-width: 768px) {
+    .grid {
+        grid-template-columns: 1fr;
+    }
+
+    .container {
+        padding: 6rem 1.5rem;
+    }
+
+    .imageArea {
+        height: 220px;
+    }
+}

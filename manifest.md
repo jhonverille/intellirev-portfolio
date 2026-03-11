@@ -64,6 +64,7 @@ Transition the portfolio from a static-data frontend to a dynamic, CMS-driven pl
 - [x] Add an admin toggle to show/hide the "PHILIPPINES" custom text.
 - [x] Change navigation bar name from JH_V_ALT to JHON VERILLE ALTERADO.
 - [x] Update site logo and favicon with the provided image.
+- [x] Audit and optimize the entire site for responsive mobile viewing.
 
 ## 3. Dependency Map
 - Phase 2 relies on Firebase Storage for image hosting (or external links).

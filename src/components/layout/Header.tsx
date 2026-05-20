@@ -19,13 +19,13 @@ export default function Header() {
     return (
         <header className={styles.header}>
             <Link href="/#home" className={styles.logo} onClick={(e) => handleNavClick(e, 'home')}>
-                <img src="/logo.png" alt="Jhon Verille Logo" className={styles.logoImage} />
-                <span>JHON VERILLE ALTERADO</span>
+                <span className={styles.monogram}>JV</span>
             </Link>
 
             <nav className={styles.nav}>
-                <Link href="/#home" className={styles.navLink} onClick={(e) => handleNavClick(e, 'home')}>Home</Link>
+                <Link href="/#profile" className={styles.navLink} onClick={(e) => handleNavClick(e, 'profile')}>Profile</Link>
                 <Link href="/#expertise" className={styles.navLink} onClick={(e) => handleNavClick(e, 'expertise')}>Expertise</Link>
+                <Link href="/projects" className={styles.navLink}>Gallery</Link>
                 <Link href="/#projects" className={styles.navLink} onClick={(e) => handleNavClick(e, 'projects')}>Portfolio</Link>
                 <Link href="/#testimonials" className={styles.navLink} onClick={(e) => handleNavClick(e, 'testimonials')}>Testimonials</Link>
                 <Link href="/#contact" className={styles.navLink} onClick={(e) => handleNavClick(e, 'contact')}>Contact</Link>

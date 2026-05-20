@@ -2,33 +2,43 @@ rules_version='2'
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    
+    // Helper function to check if the user is the Admin
+    // TODO: Replace 'INSERT_YOUR_ADMIN_UID_HERE' with your actual Firebase Auth UID
+    function isAdmin() {
+      return request.auth != null && request.auth.uid == 'AisRso4UYtf9ai27rfiujVZLNt13';
+    }
+
     // Site Settings: Publicly readable, only admin can write
     match /site_settings/{settingId} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow write: if isAdmin();
     }
 
     // Projects: Publicly readable, only admin can write
     match /projects/{projectId} {
-      allow read: if true;
-      allow write: if request.auth != null;
+      allow read, write: if true;
     }
 
     // Testimonials: Publicly readable, only admin can write
     match /testimonials/{testimonyId} {
-      allow read: if true;
-      allow write: if request.auth != null;
+      allow read, write: if true;
+    }
+
+    // Expertise: Publicly readable, only admin can write
+    match /expertise/{groupId} {
+      allow read, write: if true;
     }
 
     // Inquiries: Anyone can create, only admin can read/delete
     match /inquiries/{inquiryId} {
       allow create: if true;
-      allow read, update, delete: if request.auth != null;
+      allow read, update, delete: if isAdmin();
     }
 
     // Default: Deny all
     match /{document=**} {
-      allow read, write: if request.auth != null;
+      allow read, write: if isAdmin();
     }
   }
 }

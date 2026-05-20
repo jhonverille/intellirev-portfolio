@@ -1,16 +1,17 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { db } from '@/lib/firebase'
+import { db, storage } from '@/lib/firebase'
 import {
     collection, onSnapshot, doc, addDoc, updateDoc, deleteDoc,
     query, orderBy, serverTimestamp, Timestamp
 } from 'firebase/firestore'
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import GlassCard from '@/components/ui/GlassCard'
 import styles from './TestimonialsManager.module.css'
 import {
     Plus, Pencil, Trash2, Loader2, Quote,
-    X, Save, CheckCircle2, AlertCircle, User
+    X, Save, CheckCircle2, AlertCircle, User, Upload
 } from 'lucide-react'
 
 interface Testimony {
@@ -36,7 +37,19 @@ export default function TestimonialsManager() {
     const [editingId, setEditingId] = useState<string | null>(null)
     const [form, setForm] = useState(EMPTY_FORM)
     const [saving, setSaving] = useState(false)
+    const [uploading, setUploading] = useState(false)
     const [status, setStatus] = useState<{ type: 'success' | 'error', msg: string } | null>(null)
+    const [imageFile, setImageFile] = useState<File | null>(null)
+    const [imagePreview, setImagePreview] = useState<string | null>(null)
+
+    // Cleanup object URLs to prevent memory leaks
+    useEffect(() => {
+        return () => {
+            if (imagePreview) {
+                URL.revokeObjectURL(imagePreview)
+            }
+        }
+    }, [imagePreview])
 
     useEffect(() => {
         const q = query(collection(db, 'testimonials'), orderBy('createdAt', 'desc'))
@@ -67,7 +80,17 @@ export default function TestimonialsManager() {
             setEditingId(null)
             setForm(EMPTY_FORM)
         }
+        setImageFile(null)
+        setImagePreview(null)
         setModalOpen(true)
+    }
+
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0]
+            setImageFile(file)
+            setImagePreview(URL.createObjectURL(file))
+        }
     }
 
     const handleSave = async (e: React.FormEvent) => {
@@ -76,8 +99,19 @@ export default function TestimonialsManager() {
         setStatus(null)
 
         try {
+            let finalAvatarUrl = form.avatar
+
+            if (imageFile) {
+                setUploading(true)
+                const storageRef = ref(storage, `testimonials_avatars/${Date.now()}_${imageFile.name}`)
+                const snapshot = await uploadBytes(storageRef, imageFile)
+                finalAvatarUrl = await getDownloadURL(snapshot.ref)
+                setUploading(false)
+            }
+
             const data = {
                 ...form,
+                avatar: finalAvatarUrl,
                 updatedAt: serverTimestamp(),
                 createdAt: editingId ? (testimonials.find(t => t.id === editingId)?.createdAt || serverTimestamp()) : serverTimestamp()
             }
@@ -198,13 +232,34 @@ export default function TestimonialsManager() {
                             </div>
 
                             <div className={styles.inputGroup}>
-                                <label>Avatar URL (Optional)</label>
-                                <input
-                                    type="text"
-                                    placeholder="https://..."
-                                    value={form.avatar}
-                                    onChange={e => setForm({ ...form, avatar: e.target.value })}
-                                />
+                                <label>Avatar Profile Picture</label>
+                                <div className={styles.imageUploadArea}>
+                                    {uploading && (
+                                        <div className={styles.uploadingOverlay}>
+                                            Uploading...
+                                        </div>
+                                    )}
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleImageChange}
+                                        className={styles.fileInput}
+                                        disabled={uploading || saving}
+                                    />
+                                    {(imagePreview || form.avatar) ? (
+                                        <img 
+                                            src={imagePreview || form.avatar} 
+                                            alt="Avatar Preview" 
+                                            className={styles.imagePreview}
+                                        />
+                                    ) : (
+                                        <Upload size={24} className={styles.uploadIcon} />
+                                    )}
+                                    <div className={styles.uploadHint}>
+                                        <span>Click or drag to upload image</span>
+                                        <small>JPEG, PNG, WebP</small>
+                                    </div>
+                                </div>
                             </div>
 
                             <div className={styles.formFooter}>
@@ -214,8 +269,8 @@ export default function TestimonialsManager() {
                                         {status.msg}
                                     </div>
                                 )}
-                                <button type="submit" disabled={saving} className={styles.saveBtn}>
-                                    {saving ? <Loader2 className={styles.spinner} size={18} /> : <Save size={18} />}
+                                <button type="submit" disabled={saving || uploading} className={styles.saveBtn}>
+                                    {(saving || uploading) ? <Loader2 className={styles.spinner} size={18} /> : <Save size={18} />}
                                     {editingId ? 'Update' : 'Create'}
                                 </button>
                             </div>

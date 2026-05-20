@@ -61,7 +61,7 @@ export default function ProjectGrid() {
         return () => ctx.revert()
     }, [loading, projects])
 
-    const goToProject = (id: string) => router.push(`/projects/${id}`)
+    const goToProject = (id: string) => router.push(`/projects/detail?id=${id}`)
 
     // Skeleton cards shown while fetching
     const SkeletonCards = () => (

@@ -323,3 +323,85 @@
     animation: rotate 1s linear infinite;
     color: var(--accent-cyan);
 }
+
+.imageUploadArea {
+  position: relative;
+  border: 2px dashed rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+  transition: all 0.2s ease;
+  background: rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  margin-top: 4px;
+}
+
+.imageUploadArea:hover {
+  border-color: var(--accent-cyan);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.fileInput {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.uploadIcon {
+  color: var(--text-dim);
+}
+
+.uploadHint {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  pointer-events: none;
+}
+
+.uploadHint span {
+  font-size: 0.85rem;
+  color: #fff;
+  font-weight: 500;
+}
+
+.uploadHint small {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+
+.imagePreview {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 4px;
+  pointer-events: none;
+}
+
+.uploadingOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 8px;
+  color: white;
+  font-weight: 500;
+  font-size: 0.85rem;
+  backdrop-filter: blur(2px);
+  z-index: 10;
+}

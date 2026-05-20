@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Jhon Verille Alterado - Portfolio
 
-## Getting Started
+A high-performance, CMS-driven 3D web experience built with Next.js, Firebase, and GSAP.
 
-First, run the development server:
+## 🚀 Overview
 
+This portfolio showcases professional creative works using a "Digital Abyss" aesthetic, featuring interactive 3D elements, smooth scroll-driven animations, and a powerful custom admin dashboard for content management.
+
+### Key Features
+- **Dynamic CMS**: Full control over projects, testimonials, and site-wide labels via a custom Admin Dashboard.
+- **3D Background**: Immersive "Digital Abyss" experience powered by React Three Fiber.
+- **GSAP Animations**: Fluid scrolling and interaction-driven micro-animations.
+- **Firebase Integration**: Firestore for data, Authentication for admin access, and Firebase Hosting for deployment.
+- **Responsive Design**: Fully optimized for mobile, tablet, and desktop viewports.
+
+## 🛠️ Tech Stack
+- **Framework**: [Next.js](https://nextjs.org/) (App Router)
+- **Styling**: Vanilla CSS (CSS Modules)
+- **Animations**: [GSAP](https://gsap.com/) & [Lenis](https://github.com/darkroomengineering/lenis)
+- **3D Engine**: [Three.js](https://threejs.org/) via [React Three Fiber](https://r3f.docs.pmnd.rs/)
+- **Backend/Hosting**: [Firebase](https://firebase.google.com/) (Auth, Firestore, Storage, Hosting)
+
+## 💻 Getting Started
+
+### Prerequisites
+- Node.js 18.x or later
+- Firebase CLI (`npm install -g firebase-tools`)
+
+### Installation
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/jhonverille/jhonverille-portfolio.git
+   cd jhonverille-portfolio
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Set up environment variables:
+   Create a `.env.local` based on your Firebase configuration keys.
+
+### Development
+Run the development server:
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Deployment
+Build and deploy to Firebase Hosting:
+```bash
+npm run deploy
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🔐 Admin Dashboard
+Access the CMS at `/admin`. Authentication is required via the dedicated login page.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+Built with pride. 🇵🇭

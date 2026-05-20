@@ -165,7 +165,7 @@ export default function Hero() {
 
                     const showFlag = data.showPhilippinesFlag !== undefined ? data.showPhilippinesFlag : true;
                     
-                    let baseHeadline = (data.heroHeadline && data.heroHeadline.trim() !== '') 
+                    const baseHeadline = (data.heroHeadline && data.heroHeadline.trim() !== '') 
                         ? data.heroHeadline 
                         : <span className="text-highlight">Automation Specialist</span>;
 
@@ -232,7 +232,7 @@ export default function Hero() {
             <div className={styles.content}>
                 <div ref={titleRef} style={{ opacity: 0 }}>
                     <SectionHeader
-                        level="h1"
+                        level="h2"
                         align="left"
                         subtitle="Welcome to my Abyss"
                         title={settings.heroHeadline}

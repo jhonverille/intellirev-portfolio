@@ -20,6 +20,7 @@ interface Project {
     category: string
     description: string
     imageUrl: string
+    imageUrls?: string[]
     liveUrl: string
     githubUrl: string
     tags: string[]
@@ -31,6 +32,7 @@ const EMPTY_FORM = {
     category: '',
     description: '',
     imageUrl: '',
+    imageUrls: [] as string[],
     liveUrl: '',
     githubUrl: '',
     tags: '' // stored as comma-separated string in form, converted on save
@@ -42,8 +44,8 @@ export default function ProjectsManager() {
     const [modalOpen, setModalOpen] = useState(false)
     const [editingId, setEditingId] = useState<string | null>(null)
     const [form, setForm] = useState(EMPTY_FORM)
-    const [imageFile, setImageFile] = useState<File | null>(null)
-    const [imagePreview, setImagePreview] = useState<string>('')
+    const [imageFiles, setImageFiles] = useState<File[]>([])
+    const [imagePreviews, setImagePreviews] = useState<string[]>([])
     const [uploading, setUploading] = useState(false)
     const [saving, setSaving] = useState(false)
     const [status, setStatus] = useState<{ type: 'success' | 'error', msg: string } | null>(null)
@@ -58,6 +60,7 @@ export default function ProjectsManager() {
                 category: d.data().category || '',
                 description: d.data().description || '',
                 imageUrl: d.data().imageUrl || '',
+                imageUrls: d.data().imageUrls || [],
                 liveUrl: d.data().liveUrl || '',
                 githubUrl: d.data().githubUrl || '',
                 tags: d.data().tags || [],
@@ -73,8 +76,8 @@ export default function ProjectsManager() {
     const openAdd = () => {
         setEditingId(null)
         setForm(EMPTY_FORM)
-        setImageFile(null)
-        setImagePreview('')
+        setImageFiles([])
+        setImagePreviews([])
         setStatus(null)
         setModalOpen(true)
     }
@@ -86,12 +89,13 @@ export default function ProjectsManager() {
             category: p.category,
             description: p.description,
             imageUrl: p.imageUrl,
+            imageUrls: p.imageUrls || (p.imageUrl ? [p.imageUrl] : []),
             liveUrl: p.liveUrl,
             githubUrl: p.githubUrl,
             tags: p.tags.join(', ')
         })
-        setImageFile(null)
-        setImagePreview(p.imageUrl)
+        setImageFiles([])
+        setImagePreviews(p.imageUrls && p.imageUrls.length > 0 ? p.imageUrls : (p.imageUrl ? [p.imageUrl] : []))
         setStatus(null)
         setModalOpen(true)
     }
@@ -103,12 +107,18 @@ export default function ProjectsManager() {
     }
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0]
-        if (!file) return
-        setImageFile(file)
-        const reader = new FileReader()
-        reader.onloadend = () => setImagePreview(reader.result as string)
-        reader.readAsDataURL(file)
+        const files = Array.from(e.target.files || [])
+        if (!files.length) return
+        
+        setImageFiles(prev => [...prev, ...files])
+        
+        files.forEach(file => {
+            const reader = new FileReader()
+            reader.onloadend = () => {
+                setImagePreviews(prev => [...prev, reader.result as string])
+            }
+            reader.readAsDataURL(file)
+        })
     }
 
     const handleSave = async (e: React.FormEvent) => {
@@ -118,14 +128,18 @@ export default function ProjectsManager() {
         setStatus(null)
 
         try {
-            let finalImageUrl = form.imageUrl
+            let finalImageUrls = [...form.imageUrls]
 
-            // Upload new image if one was selected
-            if (imageFile) {
+            // Upload new images if any were selected
+            if (imageFiles.length > 0) {
                 setUploading(true)
-                const storageRef = ref(storage, `project_images/${Date.now()}_${imageFile.name}`)
-                const snapshot = await uploadBytes(storageRef, imageFile)
-                finalImageUrl = await getDownloadURL(snapshot.ref)
+                const uploadPromises = imageFiles.map(async (file) => {
+                    const storageRef = ref(storage, `project_images/${Date.now()}_${file.name}`)
+                    const snapshot = await uploadBytes(storageRef, file)
+                    return getDownloadURL(snapshot.ref)
+                })
+                const newUrls = await Promise.all(uploadPromises)
+                finalImageUrls = [...finalImageUrls, ...newUrls]
                 setUploading(false)
             }
 
@@ -133,7 +147,8 @@ export default function ProjectsManager() {
                 title: form.title.trim(),
                 category: form.category.trim(),
                 description: form.description.trim(),
-                imageUrl: finalImageUrl,
+                imageUrl: finalImageUrls.length > 0 ? finalImageUrls[0] : '',
+                imageUrls: finalImageUrls,
                 liveUrl: form.liveUrl.trim(),
                 githubUrl: form.githubUrl.trim(),
                 tags: form.tags.split(',').map(t => t.trim()).filter(Boolean),
@@ -293,11 +308,12 @@ export default function ProjectsManager() {
 
                             {/* Image Upload */}
                             <div className={styles.inputGroup}>
-                                <label>Project Image</label>
+                                <label>Project Images (Multiple)</label>
                                 <div className={styles.imageUploadArea}>
                                     <input
                                         type="file"
                                         accept="image/*"
+                                        multiple
                                         onChange={handleImageChange}
                                     />
                                     {uploading ? (
@@ -305,12 +321,16 @@ export default function ProjectsManager() {
                                             <Loader2 size={20} className={styles.spin} />
                                             Uploading...
                                         </div>
-                                    ) : imagePreview ? (
-                                        <img src={imagePreview} alt="Preview" className={styles.imagePreview} />
+                                    ) : imagePreviews.length > 0 ? (
+                                        <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', padding: '10px 0' }}>
+                                            {imagePreviews.map((url, i) => (
+                                                <img key={i} src={url} alt={`Preview ${i}`} className={styles.imagePreview} style={{ height: '100px', width: 'auto' }} />
+                                            ))}
+                                        </div>
                                     ) : (
                                         <div className={styles.uploadHint}>
                                             <ImageIcon size={28} />
-                                            <span>Click or drag to upload an image</span>
+                                            <span>Click or drag to upload images</span>
                                         </div>
                                     )}
                                 </div>

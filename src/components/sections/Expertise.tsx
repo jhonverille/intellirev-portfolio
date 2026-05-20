@@ -1,45 +1,59 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { Terminal, Code, Cpu, Globe, Database, Layers } from 'lucide-react'
+import { Globe, Database, Cpu, Layers, Code, Terminal, Zap, Star, Box, Cloud, Lock, Smartphone } from 'lucide-react'
 import SectionHeader from '../ui/SectionHeader'
 import styles from './Expertise.module.css'
+import { getAllSkillGroups, SkillGroup } from '@/lib/expertise'
 
 gsap.registerPlugin(ScrollTrigger)
 
-const SKILL_GROUPS = [
-    {
-        name: 'Frontend Forge',
-        icon: < Globe size={20} />,
-        skills: ['React', 'Next.js', 'TypeScript', 'GSAP', 'Three.js', 'Tailwind', 'CSS Modules']
-    },
-    {
-        name: 'Backend Core',
-        icon: < Database size={20} />,
-        skills: ['Node.js', 'Firebase', 'Firestore', 'PostgreSQL', 'REST APIs', 'Auth']
-    },
-    {
-        name: 'Systems & Architecture',
-        icon: < Cpu size={20} />,
-        skills: ['Vercel', 'Git', 'CI/CD', 'Edge Functions', 'Web Vitals', 'Performance']
-    },
-    {
-        name: 'Creative Suite',
-        icon: < Layers size={20} />,
-        skills: ['Figma', 'UI Design', '3D Modeling', 'Motion Graphics', 'Adobe CC']
-    }
+// Map icon name strings from Firestore to actual Lucide components
+const ICON_MAP: Record<string, React.ReactNode> = {
+    Globe:       <Globe size={20} />,
+    Database:    <Database size={20} />,
+    Cpu:         <Cpu size={20} />,
+    Layers:      <Layers size={20} />,
+    Code:        <Code size={20} />,
+    Terminal:    <Terminal size={20} />,
+    Zap:         <Zap size={20} />,
+    Star:        <Star size={20} />,
+    Box:         <Box size={20} />,
+    Cloud:       <Cloud size={20} />,
+    Lock:        <Lock size={20} />,
+    Smartphone:  <Smartphone size={20} />,
+}
+
+// Fallback if Firestore has no data yet
+const FALLBACK_GROUPS = [
+    { id: 'f1', name: 'Frontend Forge',      icon: 'Globe',    order: 0, skills: ['React', 'Next.js', 'TypeScript', 'GSAP', 'Three.js', 'Tailwind', 'CSS Modules'] },
+    { id: 'f2', name: 'Backend Core',        icon: 'Database', order: 1, skills: ['Node.js', 'Firebase', 'Firestore', 'PostgreSQL', 'REST APIs', 'Auth'] },
+    { id: 'f3', name: 'Systems & Architecture', icon: 'Cpu',   order: 2, skills: ['Vercel', 'Git', 'CI/CD', 'Edge Functions', 'Web Vitals', 'Performance'] },
+    { id: 'f4', name: 'Creative Suite',      icon: 'Layers',   order: 3, skills: ['Figma', 'UI Design', '3D Modeling', 'Motion Graphics', 'Adobe CC'] },
 ]
 
 export default function Expertise() {
     const containerRef = useRef<HTMLDivElement>(null)
     const terminalRef = useRef<HTMLDivElement>(null)
     const skillRefs = useRef<(HTMLSpanElement | null)[]>([])
+    const [groups, setGroups] = useState<SkillGroup[]>([])
+    const [loaded, setLoaded] = useState(false)
 
     useEffect(() => {
+        getAllSkillGroups()
+            .then(data => {
+                setGroups(data.length > 0 ? data : FALLBACK_GROUPS)
+            })
+            .catch(() => setGroups(FALLBACK_GROUPS))
+            .finally(() => setLoaded(true))
+    }, [])
+
+    useEffect(() => {
+        if (!loaded || groups.length === 0) return
+
         const ctx = gsap.context(() => {
-            // Animate terminal window
             gsap.from(terminalRef.current, {
                 scrollTrigger: {
                     trigger: terminalRef.current,
@@ -52,7 +66,6 @@ export default function Expertise() {
                 ease: 'power4.out'
             })
 
-            // Stagger skill badges
             skillRefs.current.forEach((badge, i) => {
                 if (!badge) return
                 gsap.from(badge, {
@@ -71,7 +84,7 @@ export default function Expertise() {
         }, containerRef)
 
         return () => ctx.revert()
-    }, [])
+    }, [loaded, groups])
 
     return (
         <section ref={containerRef} className={styles.container} id="expertise">
@@ -89,17 +102,17 @@ export default function Expertise() {
                 </div>
 
                 <div className={styles.terminalBody}>
-                    {SKILL_GROUPS.map((group, groupIndex) => (
-                        <div key={group.name} className={styles.skillGroup}>
+                    {groups.map((group, groupIndex) => (
+                        <div key={group.id} className={styles.skillGroup}>
                             <div className={styles.groupHeader}>
                                 <div className={styles.iconWrapper}>
-                                    {group.icon}
+                                    {ICON_MAP[group.icon] ?? <Layers size={20} />}
                                 </div>
                                 <h3 className={styles.groupName}>{group.name}</h3>
                             </div>
                             <div className={styles.skillList}>
                                 {group.skills.map((skill, skillIndex) => {
-                                    const refIndex = groupIndex * 10 + skillIndex;
+                                    const refIndex = groupIndex * 10 + skillIndex
                                     return (
                                         <span
                                             key={skill}
@@ -113,9 +126,7 @@ export default function Expertise() {
                             </div>
                         </div>
                     ))}
-                </div>
 
-                <div className={styles.terminalBody} style={{ paddingTop: 0 }}>
                     <div className={styles.promptLine}>
                         <span className="text-highlight">jhonverille@portfolio:~$</span>
                         <span className={styles.cursor} />

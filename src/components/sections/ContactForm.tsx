@@ -1,15 +1,20 @@
 'use client'
 
-import { useState } from 'react'
+// imports consolidated below
 import styles from './ContactForm.module.css'
 import GlassCard from '../ui/GlassCard'
 import SectionHeader from '../ui/SectionHeader'
 import { Send, CheckCircle2, Instagram, Linkedin, Facebook, Twitter as X } from 'lucide-react'
 import { db } from '@/lib/firebase'
 import { collection, addDoc, serverTimestamp, doc, getDoc } from 'firebase/firestore'
-import { useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+
+gsap.registerPlugin(ScrollTrigger)
 
 export default function ContactForm() {
+    const sectionRef = useRef<HTMLElement>(null)
     const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
     const [formData, setFormData] = useState({
         name: '',
@@ -41,6 +46,26 @@ export default function ContactForm() {
         fetchSettings()
     }, [])
 
+    useEffect(() => {
+        if (!sectionRef.current) return;
+        const ctx = gsap.context(() => {
+            gsap.fromTo(`.${styles.formCard}`,
+                { opacity: 0, y: 30 },
+                {
+                    opacity: 1,
+                    y: 0,
+                    duration: 1,
+                    ease: "power3.out",
+                    scrollTrigger: {
+                        trigger: sectionRef.current,
+                        start: "top 80%"
+                    }
+                }
+            )
+        }, sectionRef)
+        return () => ctx.revert()
+    }, [])
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setStatus('loading')
@@ -64,7 +89,7 @@ export default function ContactForm() {
     }
 
     return (
-        <section className={styles.container} id="contact">
+        <section className={styles.container} id="contact" ref={sectionRef}>
             <SectionHeader
                 subtitle="Get in Touch"
                 title="Let's Talk"

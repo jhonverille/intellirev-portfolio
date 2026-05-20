@@ -1,8 +1,9 @@
 'use client'
 
-import { Canvas } from '@react-three/fiber'
-import { PerspectiveCamera, Environment, Float, Stars, Html, useProgress } from '@react-three/drei'
-import { Suspense } from 'react'
+import { Canvas, useFrame } from '@react-three/fiber'
+import { PerspectiveCamera, Environment, Stars, Html, useProgress } from '@react-three/drei'
+import { Suspense, useRef, useEffect, useState } from 'react'
+import * as THREE from 'three'
 import AbyssObject from './AbyssObject'
 
 function Loader() {
@@ -23,6 +24,31 @@ function Loader() {
     )
 }
 
+function ScrollGroup({ children }: { children: React.ReactNode }) {
+    const groupRef = useRef<THREE.Group>(null)
+    const [scrollY, setScrollY] = useState(0)
+
+    useEffect(() => {
+        const handleScroll = () => {
+            const maxScroll = Math.max(1, document.body.scrollHeight - window.innerHeight)
+            setScrollY(window.scrollY / maxScroll)
+        }
+        window.addEventListener('scroll', handleScroll, { passive: true })
+        handleScroll()
+        return () => window.removeEventListener('scroll', handleScroll)
+    }, [])
+
+    useFrame(() => {
+        if (groupRef.current) {
+            // Total vertical distance in 3D space is 40 units (to align with 5 intervals of 8)
+            const targetY = scrollY * 40
+            groupRef.current.position.y = THREE.MathUtils.lerp(groupRef.current.position.y, targetY, 0.05)
+        }
+    })
+
+    return <group ref={groupRef}>{children}</group>
+}
+
 export default function Scene() {
     return (
         <Canvas>
@@ -36,9 +62,11 @@ export default function Scene() {
 
                 <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
 
-                <Float speed={2} rotationIntensity={0.5} floatIntensity={0.5}>
-                    <AbyssObject />
-                </Float>
+                <ScrollGroup>
+                    <group position={[0, 0, 0]}>
+                        <AbyssObject />
+                    </group>
+                </ScrollGroup>
 
                 <Environment preset="city" />
             </Suspense>

@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { db } from '@/lib/firebase'
 import { Timestamp } from 'firebase/firestore'
 import { getProjectById, Project } from '@/lib/projects'
@@ -12,14 +12,9 @@ import {
     AlertCircle, Tag, Calendar
 } from 'lucide-react'
 
-// Note: generateStaticParams is not used in 'use client' files.
-// For static export with dynamic routes, we usually need a server component shell.
-// However, since this is an SPA on Firebase, we handle routing via rewrites.
-// To satisfy the Next.js build:
-
 export default function ProjectDetailPage() {
-    const params = useParams()
-    const id = params?.id as string
+    const searchParams = useSearchParams()
+    const id = searchParams?.get('id') as string
     const router = useRouter()
     const [project, setProject] = useState<Project | null>(null)
     const [loading, setLoading] = useState(true)
@@ -88,10 +83,6 @@ export default function ProjectDetailPage() {
                 <span className={styles.category}>{project.category}</span>
                 <h1 className={styles.title}>{project.title}</h1>
 
-                {project.description && (
-                    <p className={styles.desc}>{project.description}</p>
-                )}
-
                 <div className={styles.actions}>
                     {project.liveUrl && (
                         <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" className={styles.liveBtn}>
@@ -106,12 +97,21 @@ export default function ProjectDetailPage() {
                 </div>
             </div>
 
-            {/* ─── Cover Image ─── */}
+            {/* ─── Project Images ─── */}
             <div className={styles.coverWrap}>
-                {project.imageUrl
-                    ? <img src={project.imageUrl} alt={project.title} className={styles.coverImage} />
-                    : <div className={styles.coverPlaceholder}>Project Preview</div>
-                }
+                {project.imageUrls && project.imageUrls.length > 0 ? (
+                    <div className={styles.imageGallery}>
+                        {project.imageUrls.map((url, i) => (
+                            <img key={i} src={url} alt={`${project.title} image ${i + 1}`} className={styles.coverImage} />
+                        ))}
+                    </div>
+                ) : project.imageUrl ? (
+                    <div className={styles.imageGallery}>
+                        <img src={project.imageUrl} alt={project.title} className={styles.coverImage} />
+                    </div>
+                ) : (
+                    <div className={styles.coverPlaceholder}>Project Preview</div>
+                )}
             </div>
 
             {/* ─── Body: Main + Sidebar ─── */}

@@ -111,7 +111,7 @@ export default function SiteSettings() {
 
         try {
             // First, if there's a pending tool name, add it automatically
-            let finalTools = [...settings.tools]
+            const finalTools = [...settings.tools]
             if (newToolName.trim()) {
                 console.log("Auto-adding pending tool:", newToolName)
 

@@ -7,6 +7,7 @@ export interface Project {
     category: string
     description: string
     imageUrl: string
+    imageUrls?: string[]
     liveUrl: string
     githubUrl: string
     tags: string[]
@@ -28,6 +29,7 @@ export async function getAllProjects(): Promise<Project[]> {
             category: d.data().category || '',
             description: d.data().description || '',
             imageUrl: d.data().imageUrl || '',
+            imageUrls: d.data().imageUrls || [],
             liveUrl: d.data().liveUrl || '',
             githubUrl: d.data().githubUrl || '',
             tags: d.data().tags || [],
@@ -55,6 +57,7 @@ export async function getProjectById(id: string): Promise<Project | null> {
             category: docSnap.data().category || '',
             description: docSnap.data().description || '',
             imageUrl: docSnap.data().imageUrl || '',
+            imageUrls: docSnap.data().imageUrls || [],
             liveUrl: docSnap.data().liveUrl || '',
             githubUrl: docSnap.data().githubUrl || '',
             tags: docSnap.data().tags || [],

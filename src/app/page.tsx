@@ -2,6 +2,7 @@
 
 import dynamic from 'next/dynamic'
 import Hero from '@/components/sections/Hero'
+import Profile from '@/components/sections/Profile'
 import Expertise from '@/components/sections/Expertise'
 import ProjectGrid from '@/components/sections/ProjectGrid'
 import Testimonials from '@/components/sections/Testimonials'
@@ -44,6 +45,7 @@ export default function Home() {
 
       {/* Scrollable Sections */}
       <Hero />
+      <Profile />
       <Expertise />
       <ProjectGrid />
       <Testimonials />

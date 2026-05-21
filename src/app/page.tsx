@@ -11,6 +11,10 @@ import Header from '@/components/layout/Header'
 
 import { useEffect } from 'react'
 import Lenis from 'lenis'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+
+gsap.registerPlugin(ScrollTrigger)
 
 // Dynamically import 3D Scene with no SSR
 const Scene = dynamic(() => import('@/components/3d/Scene'), {
@@ -23,14 +27,17 @@ export default function Home() {
     // Initialize smooth scrolling
     const lenis = new Lenis()
 
-    function raf(time: number) {
-      lenis.raf(time)
-      requestAnimationFrame(raf)
-    }
+    // Connect Lenis to GSAP ScrollTrigger
+    lenis.on('scroll', ScrollTrigger.update)
 
-    requestAnimationFrame(raf)
+    const rafCallback = (time: number) => {
+      lenis.raf(time * 1000)
+    }
+    gsap.ticker.add(rafCallback)
+    gsap.ticker.lagSmoothing(0)
 
     return () => {
+      gsap.ticker.remove(rafCallback)
       lenis.destroy()
     }
   }, [])

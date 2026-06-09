@@ -23,12 +23,12 @@ export default function ContactForm() {
     })
 
     const [settings, setSettings] = useState({
-        contactEmail: 'fazeel@gmail.com',
-        contactPhone: '123-456-7890',
-        socialX: '#',
-        socialFacebook: '#',
-        socialLinkedIn: '#',
-        socialInstagram: '#'
+        contactEmail: '',
+        contactPhone: '',
+        socialX: '',
+        socialFacebook: '',
+        socialLinkedIn: '',
+        socialInstagram: ''
     })
 
     useEffect(() => {
@@ -152,21 +152,33 @@ export default function ContactForm() {
                         </form>
 
                         <div className={styles.sidebar}>
-                            <div className={styles.sidebarItem}>
-                                <h4>Contact</h4>
-                                <p className="text-highlight">{settings.contactEmail}</p>
-                            </div>
+                            {settings.contactEmail && (
+                                <div className={styles.sidebarItem}>
+                                    <h4>Contact</h4>
+                                    <p className="text-highlight">{settings.contactEmail}</p>
+                                </div>
+                            )}
 
-                            <div className={styles.sidebarItem}>
-                                <h4>Call</h4>
-                                <p className="text-highlight">{settings.contactPhone}</p>
-                            </div>
+                            {settings.contactPhone && (
+                                <div className={styles.sidebarItem}>
+                                    <h4>Call</h4>
+                                    <p className="text-highlight">{settings.contactPhone}</p>
+                                </div>
+                            )}
 
                             <div className={styles.socials}>
-                                <a href={settings.socialX} className={styles.socialLink} aria-label="X" target="_blank" rel="noopener noreferrer"><X size={20} /></a>
-                                <a href={settings.socialFacebook} className={styles.socialLink} aria-label="Facebook" target="_blank" rel="noopener noreferrer"><Facebook size={20} /></a>
-                                <a href={settings.socialLinkedIn} className={styles.socialLink} aria-label="LinkedIn" target="_blank" rel="noopener noreferrer"><Linkedin size={20} /></a>
-                                <a href={settings.socialInstagram} className={styles.socialLink} aria-label="Instagram" target="_blank" rel="noopener noreferrer"><Instagram size={20} /></a>
+                                {settings.socialX && settings.socialX !== '#' && (
+                                    <a href={settings.socialX} className={styles.socialLink} aria-label="X" target="_blank" rel="noopener noreferrer"><X size={20} /></a>
+                                )}
+                                {settings.socialFacebook && settings.socialFacebook !== '#' && (
+                                    <a href={settings.socialFacebook} className={styles.socialLink} aria-label="Facebook" target="_blank" rel="noopener noreferrer"><Facebook size={20} /></a>
+                                )}
+                                {settings.socialLinkedIn && settings.socialLinkedIn !== '#' && (
+                                    <a href={settings.socialLinkedIn} className={styles.socialLink} aria-label="LinkedIn" target="_blank" rel="noopener noreferrer"><Linkedin size={20} /></a>
+                                )}
+                                {settings.socialInstagram && settings.socialInstagram !== '#' && (
+                                    <a href={settings.socialInstagram} className={styles.socialLink} aria-label="Instagram" target="_blank" rel="noopener noreferrer"><Instagram size={20} /></a>
+                                )}
                             </div>
                         </div>
                     </div>

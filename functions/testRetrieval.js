@@ -1,11 +1,15 @@
 const { initializeApp, applicationDefault } = require("firebase-admin/app");
 const { getFirestore, FieldValue } = require("firebase-admin/firestore");
 const OpenAI = require("openai");
+require("dotenv").config({ path: "./.env" });
 
-// Hardcoded for testing since we are in a safe env
-const OPENAI_API_KEY = "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";
+const openaiKey = process.env.OPENAI_API_KEY;
+if (!openaiKey) {
+  console.error("OpenAI API key not found in environment.");
+  process.exit(1);
+}
 
-const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
+const openai = new OpenAI({ apiKey: openaiKey });
 initializeApp({ credential: applicationDefault() });
 const db = getFirestore();
 

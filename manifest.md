@@ -43,9 +43,9 @@ Resolve inconsistencies in the RAG-powered chatbot by refining retrieval logic a
     - [x] Run `npm run build` in `functions` to verify backend integrity.
 - [x] **Firebase Deployment**
     - [x] Deploy hosting and functions using `firebase deploy`.
-- [ ] **Live Verification**
-    - [ ] Verify the Gallery page is accessible at `/projects`.
-    - [ ] Test ChatBot source citations and diagnostic mode on the live site.
+- [x] **Live Verification**
+    - [x] Verify the Gallery page is accessible at `/projects`.
+    - [x] Test ChatBot source citations and diagnostic mode on the live site.
 
 ### Phase 11: ChatBot UI Refinements
 - [x] **Simplify Interface**
@@ -178,7 +178,7 @@ Resolve inconsistencies in the RAG-powered chatbot by refining retrieval logic a
   - [x] Duplicate descriptions are removed.
   - [x] Frontend animations fire correctly on scroll.
   - [x] Run next.js build to verify there are no compilation errors.
-  - [ ] Deploy live to production.
+  - [x] Deploy live to production.
 
 ## 6. Error Log
 - **Task ID**: EXPLORE_PROJECTS_FUNCTION_MISSING
@@ -190,3 +190,25 @@ Resolve inconsistencies in the RAG-powered chatbot by refining retrieval logic a
 - **Error**: Adding more skills/technologies caused the Expertise terminal window to grow beyond the visible viewport.
 - **Root Cause**: `.terminalBody` had no height constraint, so it expanded indefinitely with content.
 - **Resolution**: Added `max-height` + `overflow-y: auto` with a themed scrollbar in Phase 16.
+
+### Phase 23: ChatBot OpenAI API Key Troubleshooting & Replacement (Completed)
+- Goal: Fix chatbot failure caused by an invalid/expired OpenAI API key used for embeddings.
+- Tasks:
+  - [x] Check if OpenAI or OpenRouter is being used (determined: both are used, OpenAI for embeddings, OpenRouter for LLM response).
+  - [x] Diagnose API keys (confirmed OpenAI key fails with 401, OpenRouter key is valid).
+  - [x] Replace `OPENAI_API_KEY` in `functions/.env` with the user's new key.
+  - [x] Test key validation using diagnostic scripts.
+- Validation:
+  - [x] Run the diagnostic script and verify OpenAI embeddings generate successfully.
+
+## 6. Error Log
+- **Task ID**: EXPLORE_PROJECTS_FUNCTION_MISSING
+- **Error**: "Explore All Projects" button navigates to a non-existent or empty page.
+- **Root Cause**: `src/app/projects/page.tsx` was never implemented.
+- **Resolution**: Implementation completed in Phase 9.
+
+- **Task ID**: CHATBOT_OPENAI_KEY_INVALID
+- **Error**: OpenAI Embeddings API call failed with 401 Incorrect API key.
+- **Root Cause**: The configured `OPENAI_API_KEY` in `functions/.env` was expired or invalid.
+- **Resolution**: Replaced the expired key with the user's updated key in `functions/.env` and verified successful connection to the OpenAI Embeddings API.
+

@@ -11,7 +11,7 @@ import GlassCard from '@/components/ui/GlassCard'
 import styles from './ProjectsManager.module.css'
 import {
     Plus, Pencil, Trash2, Loader2, LayoutGrid,
-    X, Save, ImageIcon, CheckCircle2, AlertCircle, ExternalLink, Github
+    X, Save, ImageIcon, Film, CheckCircle2, AlertCircle, ExternalLink, Github
 } from 'lucide-react'
 
 interface Project {
@@ -21,9 +21,14 @@ interface Project {
     description: string
     imageUrl: string
     imageUrls?: string[]
+    videoUrls?: string[]
     liveUrl: string
     githubUrl: string
     tags: string[]
+    challenge?: string
+    solution?: string
+    execution?: string
+    impact?: string
     createdAt: Timestamp | null
 }
 
@@ -33,8 +38,13 @@ const EMPTY_FORM = {
     description: '',
     imageUrl: '',
     imageUrls: [] as string[],
+    videoUrls: [] as string[],
     liveUrl: '',
     githubUrl: '',
+    challenge: '',
+    solution: '',
+    execution: '',
+    impact: '',
     tags: '' // stored as comma-separated string in form, converted on save
 }
 
@@ -46,6 +56,8 @@ export default function ProjectsManager() {
     const [form, setForm] = useState(EMPTY_FORM)
     const [imageFiles, setImageFiles] = useState<File[]>([])
     const [imagePreviews, setImagePreviews] = useState<string[]>([])
+    const [videoFiles, setVideoFiles] = useState<File[]>([])
+    const [videoPreviews, setVideoPreviews] = useState<string[]>([])
     const [uploading, setUploading] = useState(false)
     const [saving, setSaving] = useState(false)
     const [status, setStatus] = useState<{ type: 'success' | 'error', msg: string } | null>(null)
@@ -61,9 +73,14 @@ export default function ProjectsManager() {
                 description: d.data().description || '',
                 imageUrl: d.data().imageUrl || '',
                 imageUrls: d.data().imageUrls || [],
+                videoUrls: d.data().videoUrls || [],
                 liveUrl: d.data().liveUrl || '',
                 githubUrl: d.data().githubUrl || '',
                 tags: d.data().tags || [],
+                challenge: d.data().challenge || '',
+                solution: d.data().solution || '',
+                execution: d.data().execution || '',
+                impact: d.data().impact || '',
                 createdAt: d.data().createdAt || null,
             }))
             setProjects(data)
@@ -78,6 +95,8 @@ export default function ProjectsManager() {
         setForm(EMPTY_FORM)
         setImageFiles([])
         setImagePreviews([])
+        setVideoFiles([])
+        setVideoPreviews([])
         setStatus(null)
         setModalOpen(true)
     }
@@ -90,12 +109,19 @@ export default function ProjectsManager() {
             description: p.description,
             imageUrl: p.imageUrl,
             imageUrls: p.imageUrls || (p.imageUrl ? [p.imageUrl] : []),
+            videoUrls: p.videoUrls || [],
             liveUrl: p.liveUrl,
             githubUrl: p.githubUrl,
+            challenge: p.challenge || '',
+            solution: p.solution || '',
+            execution: p.execution || '',
+            impact: p.impact || '',
             tags: p.tags.join(', ')
         })
         setImageFiles([])
         setImagePreviews(p.imageUrls && p.imageUrls.length > 0 ? p.imageUrls : (p.imageUrl ? [p.imageUrl] : []))
+        setVideoFiles([])
+        setVideoPreviews(p.videoUrls && p.videoUrls.length > 0 ? p.videoUrls : [])
         setStatus(null)
         setModalOpen(true)
     }
@@ -109,15 +135,21 @@ export default function ProjectsManager() {
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = Array.from(e.target.files || [])
         if (!files.length) return
-        
         setImageFiles(prev => [...prev, ...files])
-        
         files.forEach(file => {
             const reader = new FileReader()
-            reader.onloadend = () => {
-                setImagePreviews(prev => [...prev, reader.result as string])
-            }
+            reader.onloadend = () => setImagePreviews(prev => [...prev, reader.result as string])
             reader.readAsDataURL(file)
+        })
+    }
+
+    const handleVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = Array.from(e.target.files || [])
+        if (!files.length) return
+        setVideoFiles(prev => [...prev, ...files])
+        files.forEach(file => {
+            const url = URL.createObjectURL(file)
+            setVideoPreviews(prev => [...prev, url])
         })
     }
 
@@ -129,17 +161,28 @@ export default function ProjectsManager() {
 
         try {
             let finalImageUrls = [...form.imageUrls]
+            let finalVideoUrls = [...form.videoUrls]
 
-            // Upload new images if any were selected
-            if (imageFiles.length > 0) {
+            if (imageFiles.length > 0 || videoFiles.length > 0) {
                 setUploading(true)
-                const uploadPromises = imageFiles.map(async (file) => {
-                    const storageRef = ref(storage, `project_images/${Date.now()}_${file.name}`)
-                    const snapshot = await uploadBytes(storageRef, file)
-                    return getDownloadURL(snapshot.ref)
-                })
-                const newUrls = await Promise.all(uploadPromises)
-                finalImageUrls = [...finalImageUrls, ...newUrls]
+                if (imageFiles.length > 0) {
+                    const imgPromises = imageFiles.map(async (file) => {
+                        const storageRef = ref(storage, `project_images/${Date.now()}_${file.name}`)
+                        const snapshot = await uploadBytes(storageRef, file)
+                        return getDownloadURL(snapshot.ref)
+                    })
+                    const newImgUrls = await Promise.all(imgPromises)
+                    finalImageUrls = [...finalImageUrls, ...newImgUrls]
+                }
+                if (videoFiles.length > 0) {
+                    const vidPromises = videoFiles.map(async (file) => {
+                        const storageRef = ref(storage, `project_videos/${Date.now()}_${file.name}`)
+                        const snapshot = await uploadBytes(storageRef, file)
+                        return getDownloadURL(snapshot.ref)
+                    })
+                    const newVidUrls = await Promise.all(vidPromises)
+                    finalVideoUrls = [...finalVideoUrls, ...newVidUrls]
+                }
                 setUploading(false)
             }
 
@@ -149,8 +192,13 @@ export default function ProjectsManager() {
                 description: form.description.trim(),
                 imageUrl: finalImageUrls.length > 0 ? finalImageUrls[0] : '',
                 imageUrls: finalImageUrls,
+                videoUrls: finalVideoUrls,
                 liveUrl: form.liveUrl.trim(),
                 githubUrl: form.githubUrl.trim(),
+                challenge: form.challenge.trim(),
+                solution: form.solution.trim(),
+                execution: form.execution.trim(),
+                impact: form.impact.trim(),
                 tags: form.tags.split(',').map(t => t.trim()).filter(Boolean),
             }
 
@@ -295,14 +343,53 @@ export default function ProjectsManager() {
                                 </div>
                             </div>
 
-                            {/* Description */}
                             <div className={styles.inputGroup}>
-                                <label>Description</label>
+                                <label>Description (Short Overview)</label>
                                 <textarea
                                     className={styles.textareaField}
-                                    placeholder="Brief overview of the project..."
+                                    placeholder="Brief overview of the project for the grid card..."
                                     value={form.description}
                                     onChange={e => setForm({ ...form, description: e.target.value })}
+                                />
+                            </div>
+
+                            <div className={styles.inputGroup}>
+                                <label>The Challenge / Problem</label>
+                                <textarea
+                                    className={styles.textareaField}
+                                    placeholder="What was the pain point the client was experiencing?"
+                                    value={form.challenge}
+                                    onChange={e => setForm({ ...form, challenge: e.target.value })}
+                                />
+                            </div>
+
+                            <div className={styles.inputGroup}>
+                                <label>The Strategic Solution</label>
+                                <textarea
+                                    className={styles.textareaField}
+                                    placeholder="What was your technical approach to solve it?"
+                                    value={form.solution}
+                                    onChange={e => setForm({ ...form, solution: e.target.value })}
+                                />
+                            </div>
+
+                            <div className={styles.inputGroup}>
+                                <label>The Execution</label>
+                                <textarea
+                                    className={styles.textareaField}
+                                    placeholder="Summary of how you implemented the automation."
+                                    value={form.execution}
+                                    onChange={e => setForm({ ...form, execution: e.target.value })}
+                                />
+                            </div>
+
+                            <div className={styles.inputGroup}>
+                                <label>The Tangible Result / Impact</label>
+                                <textarea
+                                    className={styles.textareaField}
+                                    placeholder="What was the measurable outcome?"
+                                    value={form.impact}
+                                    onChange={e => setForm({ ...form, impact: e.target.value })}
                                 />
                             </div>
 
@@ -331,6 +418,43 @@ export default function ProjectsManager() {
                                         <div className={styles.uploadHint}>
                                             <ImageIcon size={28} />
                                             <span>Click or drag to upload images</span>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Video Upload */}
+                            <div className={styles.inputGroup}>
+                                <label>Project Videos (Multiple)</label>
+                                <div className={styles.imageUploadArea}>
+                                    <input
+                                        type="file"
+                                        accept="video/*"
+                                        multiple
+                                        onChange={handleVideoChange}
+                                    />
+                                    {uploading ? (
+                                        <div className={styles.uploadingOverlay}>
+                                            <Loader2 size={20} className={styles.spin} />
+                                            Uploading...
+                                        </div>
+                                    ) : videoPreviews.length > 0 ? (
+                                        <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', padding: '10px 0' }}>
+                                            {videoPreviews.map((url, i) => (
+                                                <video
+                                                    key={i}
+                                                    src={url}
+                                                    className={styles.imagePreview}
+                                                    style={{ height: '100px', width: 'auto', borderRadius: 8 }}
+                                                    controls
+                                                    muted
+                                                />
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className={styles.uploadHint}>
+                                            <Film size={28} />
+                                            <span>Click or drag to upload videos</span>
                                         </div>
                                     )}
                                 </div>

@@ -8,9 +8,14 @@ export interface Project {
     description: string
     imageUrl: string
     imageUrls?: string[]
+    videoUrls?: string[]
     liveUrl: string
     githubUrl: string
     tags: string[]
+    challenge?: string
+    solution?: string
+    execution?: string
+    impact?: string
     createdAt: Timestamp | null
 }
 
@@ -30,9 +35,14 @@ export async function getAllProjects(): Promise<Project[]> {
             description: d.data().description || '',
             imageUrl: d.data().imageUrl || '',
             imageUrls: d.data().imageUrls || [],
+            videoUrls: d.data().videoUrls || [],
             liveUrl: d.data().liveUrl || '',
             githubUrl: d.data().githubUrl || '',
             tags: d.data().tags || [],
+            challenge: d.data().challenge || '',
+            solution: d.data().solution || '',
+            execution: d.data().execution || '',
+            impact: d.data().impact || '',
             createdAt: d.data().createdAt || null,
         }))
     } catch (error) {
@@ -58,9 +68,14 @@ export async function getProjectById(id: string): Promise<Project | null> {
             description: docSnap.data().description || '',
             imageUrl: docSnap.data().imageUrl || '',
             imageUrls: docSnap.data().imageUrls || [],
+            videoUrls: docSnap.data().videoUrls || [],
             liveUrl: docSnap.data().liveUrl || '',
             githubUrl: docSnap.data().githubUrl || '',
             tags: docSnap.data().tags || [],
+            challenge: docSnap.data().challenge || '',
+            solution: docSnap.data().solution || '',
+            execution: docSnap.data().execution || '',
+            impact: docSnap.data().impact || '',
             createdAt: docSnap.data().createdAt || null,
         }
     } catch (error) {

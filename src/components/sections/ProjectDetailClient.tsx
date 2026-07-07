@@ -1,15 +1,14 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
-import { db } from '@/lib/firebase'
 import { Timestamp } from 'firebase/firestore'
 import { getProjectById, Project } from '@/lib/projects'
 import GlassCard from '@/components/ui/GlassCard'
 import styles from './ProjectDetail.module.css'
 import {
-    ArrowLeft, ExternalLink, Github, Loader2,
-    AlertCircle, Tag, Calendar
+    ArrowLeft, ArrowRight, ExternalLink, Github, Loader2,
+    AlertCircle, Tag, Calendar, ChevronLeft, ChevronRight
 } from 'lucide-react'
 
 export default function ProjectDetailPage() {
@@ -19,6 +18,10 @@ export default function ProjectDetailPage() {
     const [project, setProject] = useState<Project | null>(null)
     const [loading, setLoading] = useState(true)
     const [notFound, setNotFound] = useState(false)
+    const [activeTab, setActiveTab] = useState<'challenge' | 'solution' | 'execution' | 'impact'>('challenge')
+    const [currentImage, setCurrentImage] = useState(0)
+    const touchStartX = useRef<number | null>(null)
+    const touchEndX = useRef<number | null>(null)
 
     useEffect(() => {
         const fetchProject = async () => {
@@ -38,6 +41,54 @@ export default function ProjectDetailPage() {
         }
         fetchProject()
     }, [id])
+
+    const images = project
+        ? (project.imageUrls && project.imageUrls.length > 0 ? project.imageUrls : project.imageUrl ? [project.imageUrl] : [])
+        : []
+
+    // Build unified media list: images first, then videos
+    type MediaItem = { type: 'image' | 'video'; url: string }
+    const media: MediaItem[] = [
+        ...images.map(url => ({ type: 'image' as const, url })),
+        ...(project?.videoUrls ?? []).map(url => ({ type: 'video' as const, url }))
+    ]
+
+    const prevImage = useCallback(() => {
+        setCurrentImage(i => (i - 1 + media.length) % media.length)
+    }, [media.length])
+
+    const nextImage = useCallback(() => {
+        setCurrentImage(i => (i + 1) % media.length)
+    }, [media.length])
+
+    const handleTouchStart = (e: React.TouchEvent) => {
+        touchStartX.current = e.touches[0].clientX
+        touchEndX.current = null
+    }
+
+    const handleTouchMove = (e: React.TouchEvent) => {
+        touchEndX.current = e.touches[0].clientX
+    }
+
+    const handleTouchEnd = () => {
+        if (touchStartX.current === null || touchEndX.current === null) return
+        const diff = touchStartX.current - touchEndX.current
+        if (Math.abs(diff) > 50) {
+            diff > 0 ? nextImage() : prevImage()
+        }
+        touchStartX.current = null
+        touchEndX.current = null
+    }
+
+    useEffect(() => {
+        const handleKey = (e: KeyboardEvent) => {
+            if (!project || media.length <= 1) return
+            if (e.key === 'ArrowLeft') prevImage()
+            if (e.key === 'ArrowRight') nextImage()
+        }
+        window.addEventListener('keydown', handleKey)
+        return () => window.removeEventListener('keydown', handleKey)
+    }, [project, media.length, prevImage, nextImage])
 
     const formatDate = (ts: Timestamp | null) => {
         if (!ts) return null
@@ -97,17 +148,54 @@ export default function ProjectDetailPage() {
                 </div>
             </div>
 
-            {/* ─── Project Images ─── */}
+            {/* ─── Image Carousel ─── */}
             <div className={styles.coverWrap}>
-                {project.imageUrls && project.imageUrls.length > 0 ? (
-                    <div className={styles.imageGallery}>
-                        {project.imageUrls.map((url, i) => (
-                            <img key={i} src={url} alt={`${project.title} image ${i + 1}`} className={styles.coverImage} />
-                        ))}
-                    </div>
-                ) : project.imageUrl ? (
-                    <div className={styles.imageGallery}>
-                        <img src={project.imageUrl} alt={project.title} className={styles.coverImage} />
+                {media.length > 0 ? (
+                    <div
+                        className={styles.carousel}
+                        onTouchStart={handleTouchStart}
+                        onTouchMove={handleTouchMove}
+                        onTouchEnd={handleTouchEnd}
+                    >
+                        <div className={styles.carouselTrack} style={{ transform: `translateX(-${currentImage * 100}%)` }}>
+                            {media.map((item, i) => (
+                                <div key={i} className={styles.carouselSlide}>
+                                    {item.type === 'video' ? (
+                                        <video
+                                            src={item.url}
+                                            className={styles.coverImage}
+                                            controls
+                                            playsInline
+                                            style={{ background: '#000' }}
+                                        />
+                                    ) : (
+                                        <img src={item.url} alt={`${project.title} image ${i + 1}`} className={styles.coverImage} />
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+
+                        {media.length > 1 && (
+                            <>
+                                <button className={`${styles.carouselBtn} ${styles.carouselBtnPrev}`} onClick={prevImage} aria-label="Previous">
+                                    <ChevronLeft size={22} />
+                                </button>
+                                <button className={`${styles.carouselBtn} ${styles.carouselBtnNext}`} onClick={nextImage} aria-label="Next">
+                                    <ChevronRight size={22} />
+                                </button>
+                                <div className={styles.carouselDots}>
+                                    {media.map((item, i) => (
+                                        <button
+                                            key={i}
+                                            className={`${styles.dot} ${i === currentImage ? styles.dotActive : ''} ${item.type === 'video' ? styles.dotVideo : ''}`}
+                                            onClick={() => setCurrentImage(i)}
+                                            aria-label={`Go to ${item.type} ${i + 1}`}
+                                        />
+                                    ))}
+                                </div>
+                                <div className={styles.carouselCounter}>{currentImage + 1} / {media.length}</div>
+                            </>
+                        )}
                     </div>
                 ) : (
                     <div className={styles.coverPlaceholder}>Project Preview</div>
@@ -119,11 +207,67 @@ export default function ProjectDetailPage() {
                 {/* Main */}
                 <div className={styles.mainContent}>
                     <GlassCard className={styles.contentCard}>
-                        <span className={styles.sectionLabel}>About this project</span>
-                        <h2 className={styles.sectionTitle}>Overview</h2>
-                        <p className={styles.sectionText}>
-                            {project.description || 'No detailed description provided yet.'}
-                        </p>
+                        <div className={styles.tabsHeader}>
+                            <button 
+                                className={`${styles.tabBtn} ${activeTab === 'challenge' ? styles.tabBtnActive : ''}`}
+                                onClick={() => setActiveTab('challenge')}
+                            >
+                                The Challenge
+                            </button>
+                            <button 
+                                className={`${styles.tabBtn} ${activeTab === 'solution' ? styles.tabBtnActive : ''}`}
+                                onClick={() => setActiveTab('solution')}
+                            >
+                                Strategic Solution
+                            </button>
+                            <button 
+                                className={`${styles.tabBtn} ${activeTab === 'execution' ? styles.tabBtnActive : ''}`}
+                                onClick={() => setActiveTab('execution')}
+                            >
+                                Execution
+                            </button>
+                            <button 
+                                className={`${styles.tabBtn} ${activeTab === 'impact' ? styles.tabBtnActive : ''}`}
+                                onClick={() => setActiveTab('impact')}
+                            >
+                                Impact
+                            </button>
+                        </div>
+
+                        <div className={styles.tabContent}>
+                            {activeTab === 'challenge' && (
+                                <>
+                                    <span className={styles.sectionLabel}>The Challenge / Problem</span>
+                                    <p className={styles.sectionText}>
+                                        {project.challenge || project.description || 'No challenge description provided yet.'}
+                                    </p>
+                                </>
+                            )}
+                            {activeTab === 'solution' && (
+                                <>
+                                    <span className={styles.sectionLabel}>The Strategic Solution</span>
+                                    <p className={styles.sectionText}>
+                                        {project.solution || 'No solution description provided yet.'}
+                                    </p>
+                                </>
+                            )}
+                            {activeTab === 'execution' && (
+                                <>
+                                    <span className={styles.sectionLabel}>The Execution</span>
+                                    <p className={styles.sectionText}>
+                                        {project.execution || 'No execution details provided yet.'}
+                                    </p>
+                                </>
+                            )}
+                            {activeTab === 'impact' && (
+                                <>
+                                    <span className={styles.sectionLabel}>The Tangible Result / Impact</span>
+                                    <p className={styles.sectionText}>
+                                        {project.impact || 'No impact details provided yet.'}
+                                    </p>
+                                </>
+                            )}
+                        </div>
                     </GlassCard>
                 </div>
 
